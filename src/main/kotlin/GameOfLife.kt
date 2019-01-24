@@ -32,10 +32,11 @@
     }
         */
 //Simulate X bot games
+
 fun main() {
     val x = 1000
-    val p1 = Strategies.MINIMAX
-    val p2 = Strategies.MINIMAX
+    val p1 = Strategies.OPTIMAL
+    val p2 = Strategies.RANDOM
     var moves = 0
     var bluewin = 0
     var redwin = 0

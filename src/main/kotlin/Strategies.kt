@@ -71,7 +71,7 @@ fun greedy(board: Board, moves: Array<Move>):Move {
     var fewestOpponentPieces = Int.MAX_VALUE
     moves.forEach {
         val copy = board.getCopy()
-        copy.applyMove(move)
+        copy.applyMove(it)
         val leftoverOpponentPieces = copy.playerPieces(copy.getOpponent()).size
         if (leftoverOpponentPieces < fewestOpponentPieces) {
             fewestOpponentPieces = leftoverOpponentPieces
@@ -87,8 +87,9 @@ fun safe(board: Board, moves: Array<Move>):Move {
     var mostOwnPieces = Int.MIN_VALUE
     moves.forEach {
         val copy = board.getCopy()
-        copy.applyMove(move)
+        copy.applyMove(it)
         val leftoverOwnPieces = copy.playerPieces(copy.currentPlayer).size
+        println("move $it has $leftoverOwnPieces")
         if (leftoverOwnPieces > mostOwnPieces) {
             mostOwnPieces = leftoverOwnPieces
             move = it
@@ -103,7 +104,7 @@ fun optimal(board: Board, moves: Array<Move>): Move {
     var greatestDifference = Int.MIN_VALUE
     moves.forEach {
         val copy = board.getCopy()
-        copy.applyMove(move)
+        copy.applyMove(it)
         val leftoverOwnPieces = copy.playerPieces(copy.currentPlayer).size
         val leftOverOpponentPieces = copy.playerPieces(copy.getOpponent()).size
         val pieceDifference = leftoverOwnPieces - leftOverOpponentPieces
@@ -120,13 +121,22 @@ fun optimal(board: Board, moves: Array<Move>): Move {
 fun minimax(board: Board, moves: Array<Move>): Move {
     var move = moves[0]
     var moveScore = Int.MIN_VALUE
+    val results = ArrayList<Pair<Move, Board>>()
     moves.forEach {
         val copy = board.getCopy()
-        copy.applyMove(move)
+        copy.applyMove(it)
+        results.add(Pair(it, copy))
+    }
+    // If a move leads to a win just return it
+    results.forEach {
+        if (it.second.finished() && it.second.gameResult() == it.second.currentPlayer) {
+            return it.first
+        }
+        val copy = it.second
         val score: Int
         //We can assign certain scores if the game finishes after the first move
         if (copy.finished()) {
-            score = getEndScore(board, copy.currentPlayer)
+            score = getEndScore(copy, copy.currentPlayer)
         } else {
             //Otherwise, simulate a move as the opponent using optimal function
             copy.changeSides()
@@ -135,7 +145,7 @@ fun minimax(board: Board, moves: Array<Move>): Move {
             // At this point, currentplayer is the OPPONENT, so we need to change sides again
             copy.changeSides()
             score = if (copy.finished()) {
-                getEndScore(board, copy.currentPlayer)
+                getEndScore(copy, copy.currentPlayer)
             } else {
                 // Otherwise calculate the piece difference
                 // We want the GREATEST piece difference for the current player after a opponents move
@@ -146,7 +156,7 @@ fun minimax(board: Board, moves: Array<Move>): Move {
         }
         if (score > moveScore) {
             moveScore = score
-            move = it
+            move = it.first
         }
     }
     return move

@@ -242,7 +242,10 @@ data class Board(var bluePieces: ArrayList<Pair<Int, Int>> = ArrayList(),
 
     //Return a deep copy of the board to allow for simulations
     fun getCopy(): Board {
-        return Board(ArrayList(bluePieces), ArrayList(redPieces), moves, currentPlayer, player1, player2)
+        val board = Board(moves = moves, currentPlayer = currentPlayer, player1 = player1, player2 = player2)
+        board.bluePieces = ArrayList(bluePieces)
+        board.redPieces = ArrayList(redPieces)
+        return board
     }
 
     // Override the string function to print the board
